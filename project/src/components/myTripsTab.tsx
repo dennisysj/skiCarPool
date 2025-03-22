@@ -6,38 +6,10 @@ import { Calendar, Car, MapPin, Clock, Users } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useAuth } from "../contexts/AuthContext"
 import { fetchMyTrips } from "../lib/api"
-
-// Define interface for trip data - using the one from api.ts
-interface TripData {
-  id: string;
-  departure_location: string;
-  destination: string;
-  departure_time: string;
-  return_time?: string;
-  available_seats: number;
-  price: number;
-  driver_id: string;
-  ski_resort: string;
-  pickup_zone: string;
-  car_make?: string;
-  car_model?: string;
-  car_photo_url?: string;
-  gear_space?: string;
-  description?: string;
-  created_at: string;
-  profiles?: {
-    username?: string;
-    full_name?: string;
-    avatar_url?: string;
-  };
-  // Frontend state properties
-  tripType?: "upcoming" | "offered" | "past";
-  status?: "rider" | "driver" | "completed";
-  requestStatus?: string;
-}
+import { RideData } from "../types/index"
 
 // Component to display trip data
-const TripCard = ({ tripData }: { tripData: TripData }) => {
+const TripCard = ({ tripData }: { tripData: RideData }) => {
   const { destination, price, departure_time, return_time, available_seats, pickup_zone, status, car_model, ski_resort } = tripData;
 
   // Format dates for display
@@ -92,7 +64,7 @@ const TripCard = ({ tripData }: { tripData: TripData }) => {
             </div>
             <div className="flex items-center">
               <MapPin className="h-4 w-4 mr-2 text-slate-500" />
-              <span>{pickup_zone || departure_location}</span>
+              <span>{pickup_zone || tripData.departure_location}</span>
             </div>
             <div className="flex items-center">
               <Clock className="h-4 w-4 mr-2 text-slate-500" />
@@ -131,11 +103,11 @@ const TripCard = ({ tripData }: { tripData: TripData }) => {
 };
 
 export function MyTripsTab() {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const [trips, setTrips] = useState<{
-    upcoming: TripData[],
-    offered: TripData[],
-    past: TripData[]
+    upcoming: RideData[],
+    offered: RideData[],
+    past: RideData[]
   }>({
     upcoming: [],
     offered: [],
@@ -146,7 +118,7 @@ export function MyTripsTab() {
 
   useEffect(() => {
     const loadTrips = async () => {
-      if (!user || !token) {
+      if (!user) {
         console.log('User not authenticated, using mock data');
         // Use mock data when not authenticated
         setTrips({
@@ -160,7 +132,16 @@ export function MyTripsTab() {
 
       try {
         setLoading(true);
-        const tripsData = await fetchMyTrips(token);
+        // Use the fetchMyTrips function from our API service
+        const response = await fetchMyTrips();
+        
+        // Organize trips into categories
+        const tripsData = {
+          upcoming: response.upcoming || [],
+          offered: response.offered || [],
+          past: response.past || []
+        };
+        
         setTrips(tripsData);
         console.log("Successfully loaded trip data:", tripsData);
       } catch (err) {
@@ -180,7 +161,7 @@ export function MyTripsTab() {
     };
 
     loadTrips();
-  }, [user, token]);
+  }, [user]);
 
   if (loading) {
     return <div className="flex justify-center py-12">Loading your trips...</div>;
@@ -233,7 +214,7 @@ export function MyTripsTab() {
 }
 
 // Mock data for testing when API is unavailable
-const mockTrips: TripData[] = [
+const mockTrips: RideData[] = [
   {
     id: "1",
     driver_id: "user1",

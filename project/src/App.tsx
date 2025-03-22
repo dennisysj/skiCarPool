@@ -7,6 +7,7 @@ import { SignUpPage } from './pages/SignUpPage';
 import { OfferRidePage } from './pages/OfferRidePage';
 import { MyTripsPage } from './pages/MyTripsPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { Toaster } from './components/ui/toaster';
 
 
 export function App() {
@@ -23,6 +24,7 @@ export function App() {
           <Route path="find-ride" element={<HomePage />} />
         </Route>
       </Routes>
+      <Toaster />
     </AuthProvider>
   );
 }

@@ -3,45 +3,66 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useAuth } from '../contexts/AuthContext';
-import { fetchRides } from '../lib/api';
 import { Calendar, MapPin, Clock, Users, Car } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Navbar } from '../components/Navbar';
+import { fetchRides } from '../lib/api';
+import { RideData } from '../types/index';
+import { useToast } from '../components/ui/use-toast';
 
-// Interface for ride data
-interface RideData {
-  id: string;
-  departure_location: string;
-  destination: string;
-  departure_time: string;
-  return_time?: string;
-  available_seats: number;
-  price: number;
-  driver_id: string;
-  ski_resort: string;
-  pickup_zone: string;
-  car_make?: string;
-  car_model?: string;
-  car_photo_url?: string;
-  gear_space?: string;
-  description?: string;
-  created_at: string;
-  profiles?: {
-    username?: string;
-    full_name?: string;
-    avatar_url?: string;
-  };
-}
+// Mock data for when API fails
+const mockRides: RideData[] = [
+  {
+    id: 'm1',
+    departure_location: 'Vancouver',
+    destination: 'Whistler',
+    departure_time: '2025-01-15T08:00:00Z',
+    return_time: '2025-01-15T18:00:00Z',
+    available_seats: 3,
+    price: 30,
+    driver_id: 'mock-driver-1',
+    ski_resort: 'Whistler Blackcomb',
+    pickup_zone: 'Downtown',
+    description: 'Early morning trip to Whistler. Will stop for coffee on the way.',
+    created_at: '2024-03-01T12:00:00Z',
+    profiles: {
+      username: 'johndoe',
+      full_name: 'John Doe',
+      avatar_url: 'https://randomuser.me/api/portraits/men/1.jpg'
+    }
+  },
+  {
+    id: 'm2',
+    departure_location: 'Seattle',
+    destination: 'Crystal Mountain',
+    departure_time: '2025-01-20T07:30:00Z',
+    return_time: '2025-01-20T17:00:00Z',
+    available_seats: 2,
+    price: 25,
+    driver_id: 'mock-driver-2',
+    ski_resort: 'Crystal Mountain Resort',
+    pickup_zone: 'Capitol Hill',
+    description: 'Day trip to Crystal. I have room for skis and boards.',
+    created_at: '2024-03-02T10:00:00Z',
+    profiles: {
+      username: 'sarahsmith',
+      full_name: 'Sarah Smith',
+      avatar_url: 'https://randomuser.me/api/portraits/women/2.jpg'
+    }
+  }
+];
 
 export function HomePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean>(false);
   const [searchData, setSearchData] = useState({
     departure_location: '',
     destination: '',
     from_date: '',
+    to_date: '',
+    min_seats: ''
   });
   const [searchResults, setSearchResults] = useState<RideData[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -76,7 +97,13 @@ export function HomePage() {
     console.log('Searching for rides:', searchData);
     
     try {
-      const results = await fetchRides(searchData);
+      // Convert min_seats from string to number
+      const searchParams = {
+        ...searchData,
+        min_seats: searchData.min_seats ? parseInt(searchData.min_seats) : undefined
+      };
+      
+      const results = await fetchRides(searchParams);
       setSearchResults(results);
       setShowResults(true);
       console.log('Search results:', results);
@@ -87,7 +114,16 @@ export function HomePage() {
     } catch (err) {
       console.error('Error searching for rides:', err);
       setError('Failed to search for rides. Please try again later.');
-      setSearchResults([]);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to search for rides. Please try again later."
+      });
+      
+      // For demo purposes: use mock data when API fails
+      console.log("Using mock data due to API error");
+      setSearchResults(mockRides);
+      setShowResults(true);
     } finally {
       setLoading(false);
     }
@@ -105,18 +141,40 @@ export function HomePage() {
   };
 
   const handleViewRide = (rideId: string) => {
-    // In a real app, navigate to ride details page
+    // Navigate to ride details page
     console.log(`View ride with ID: ${rideId}`);
+    // navigate(`/rides/${rideId}`);
   };
 
-  const handleBookRide = (rideId: string) => {
+  const handleBookRide = async (rideId: string) => {
     if (!isUserLoggedIn) {
+      toast({
+        title: "Login required",
+        description: "Please log in to book a ride",
+        variant: "destructive" 
+      });
       navigate('/login');
       return;
     }
     
-    // In a real app, navigate to booking page or show booking modal
-    console.log(`Book ride with ID: ${rideId}`);
+    try {
+      console.log(`Booking ride with ID: ${rideId}`);
+      // In a real implementation, we would call the API here
+      // await bookRide(rideId, 1);
+      
+      // For demo purposes
+      toast({
+        title: "Booking requested",
+        description: "Your booking request has been submitted. Wait for the driver to confirm."
+      });
+    } catch (err) {
+      console.error('Error booking ride:', err);
+      toast({
+        variant: "destructive",
+        title: "Booking failed",
+        description: "Failed to book this ride. Please try again later."
+      });
+    }
   };
 
   return (
@@ -187,7 +245,6 @@ export function HomePage() {
                     value={searchData.departure_location}
                     onChange={handleSearchChange}
                     placeholder="e.g. Vancouver"
-                    required
                   />
                 </div>
                 <div>
@@ -201,7 +258,6 @@ export function HomePage() {
                     value={searchData.destination}
                     onChange={handleSearchChange}
                     placeholder="e.g. Whistler"
-                    required
                   />
                 </div>
                 <div>
@@ -214,7 +270,35 @@ export function HomePage() {
                     type="date"
                     value={searchData.from_date}
                     onChange={handleSearchChange}
-                    required
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="to_date" className="block text-sm font-medium mb-1">
+                    Return Date (Optional)
+                  </label>
+                  <Input
+                    id="to_date"
+                    name="to_date"
+                    type="date"
+                    value={searchData.to_date}
+                    onChange={handleSearchChange}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="min_seats" className="block text-sm font-medium mb-1">
+                    Minimum Seats
+                  </label>
+                  <Input
+                    id="min_seats"
+                    name="min_seats"
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={searchData.min_seats}
+                    onChange={handleSearchChange}
+                    placeholder="1"
                   />
                 </div>
               </div>
@@ -231,6 +315,10 @@ export function HomePage() {
               <h3 className="text-xl font-semibold mb-2">Available Rides</h3>
               
               {error && <p className="text-red-500 mb-4">{error}</p>}
+              
+              {!loading && searchResults.length === 0 && !error && (
+                <p className="text-center py-8 text-slate-500">No rides found matching your criteria. Try different search terms.</p>
+              )}
               
               {!loading && searchResults.length > 0 && searchResults.map(ride => (
                 <Card key={ride.id} className="border-sky-100 mb-4">
@@ -330,10 +418,7 @@ export function HomePage() {
                   setSearchData({...searchData, destination: 'Whistler'});
                   // Auto-search when clicking on a featured destination
                   setTimeout(() => {
-                    const searchButton = document.querySelector('[type="submit"]');
-                    if (searchButton) {
-                      (searchButton as HTMLButtonElement).click();
-                    }
+                    handleSearchSubmit(new Event('submit') as any);
                   }, 100);
                 }}>
                   Find Rides
@@ -353,10 +438,7 @@ export function HomePage() {
                 <Button variant="outline" className="w-full" onClick={() => {
                   setSearchData({...searchData, destination: 'Cypress'});
                   setTimeout(() => {
-                    const searchButton = document.querySelector('[type="submit"]');
-                    if (searchButton) {
-                      (searchButton as HTMLButtonElement).click();
-                    }
+                    handleSearchSubmit(new Event('submit') as any);
                   }, 100);
                 }}>
                   Find Rides
@@ -376,10 +458,7 @@ export function HomePage() {
                 <Button variant="outline" className="w-full" onClick={() => {
                   setSearchData({...searchData, destination: 'Grouse'});
                   setTimeout(() => {
-                    const searchButton = document.querySelector('[type="submit"]');
-                    if (searchButton) {
-                      (searchButton as HTMLButtonElement).click();
-                    }
+                    handleSearchSubmit(new Event('submit') as any);
                   }, 100);
                 }}>
                   Find Rides
