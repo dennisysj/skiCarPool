@@ -121,32 +121,47 @@ export function HomePage() {
 
   return (
     <div className="flex flex-col items-center">
-      <Navbar />
-      
+
       {/* Hero Section */}
-      <div className="w-full bg-[#f7f9fc] py-10">
-        <div className="max-w-4xl mx-auto px-4">
+      <div className="w-full py-10 relative">
+        {/* Background image with overlay */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          {/* Using the Grouse Mountain JPEG image from public directory */}
+          <img
+            src="/grouse-mountain-2.jpeg"
+            alt="Grouse Mountain view"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-blue-900/70"></div>
+        </div>
+
+        <div className="max-w-4xl mx-auto px-4 relative z-10">
           <div className="flex flex-col md:flex-row items-center gap-8 mb-12">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-[#0c141c] mb-4">
+              <h1 className="text-4xl font-bold text-white mb-4">
                 Find your next ski trip companion
               </h1>
-              <p className="text-lg text-[#4f7296] mb-6">
+              <p className="text-lg text-white opacity-90 mb-6">
                 Connect with fellow ski enthusiasts and share rides to your favorite slopes
               </p>
               {!isUserLoggedIn && (
                 <div className="flex gap-4">
-                  <Button onClick={() => navigate('/login')} className="bg-[#197fe5]">
+                  <Button onClick={() => navigate('/login')} className="bg-white text-blue-700 hover:bg-gray-100">
                     Get Started
                   </Button>
                 </div>
               )}
             </div>
             <div className="flex-1">
-              <img
-                src="/depth-6--frame-0.png"
-                alt="Ski resort"
-                className="rounded-xl w-full"
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d177087.53693213698!2d-123.2103550787545!3d49.36090397714666!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x54866f8566eb3e37%3A0x4d63448ce84b46f6!2sGrouse%20Mountain!5e0!3m2!1sen!2sca!4v1742683037083!5m2!1sen!2sca"
+                width="100%"
+                height="300"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="rounded-xl shadow-lg"
               />
             </div>
           </div>
@@ -154,11 +169,11 @@ export function HomePage() {
       </div>
 
       {/* Find Rides Section */}
-      <div className="w-full bg-white py-10">
+      <div className="w-full bg-gray-50 py-10">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6 text-center">Find Rides</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Find Rides</h2>
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8 border border-gray-100">
             <form onSubmit={handleSearchSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>

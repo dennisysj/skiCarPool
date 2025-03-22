@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
@@ -14,10 +14,13 @@ const formSchema = z.object({
     email: z.string().email("Invalid email address"),
     phone: z.string().optional(),
     bio: z.string().optional(),
-    profilePicture: z.string().optional(),
+    profilePicture: z.any().optional(),
 })
 
 export function ProfileTab() {
+    const [avatarSrc, setAvatarSrc] = useState<string>("/placeholder.svg");
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -26,10 +29,41 @@ export function ProfileTab() {
             phone: "(555) 123-4567",
             bio: "Avid skier and snowboarder. I love fresh powder days and meeting new people on the slopes!",
         },
-    })
+    });
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            // Create a preview URL for the selected image
+            const imageUrl = URL.createObjectURL(file);
+            setAvatarSrc(imageUrl);
+
+            // Update the form value
+            form.setValue("profilePicture", file);
+        }
+    };
+
+    const handlePhotoButtonClick = () => {
+        // Trigger the hidden file input
+        fileInputRef.current?.click();
+    };
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+        console.log("Form submitted with values:", values);
+
+        // In a real app, you would upload the image to your backend here
+        if (values.profilePicture instanceof File) {
+            // Example of how you might handle file upload in a real application:
+            console.log("Would upload file:", values.profilePicture.name);
+
+            // Create a FormData object to send the file
+            // const formData = new FormData();
+            // formData.append("profilePicture", values.profilePicture);
+            // fetch('/api/upload-profile-image', {
+            //   method: 'POST',
+            //   body: formData
+            // });
+        }
     }
 
     return (
@@ -42,12 +76,28 @@ export function ProfileTab() {
             <div className="flex flex-col md:flex-row gap-8">
                 <div className="md:w-1/3 flex flex-col items-center space-y-4">
                     <Avatar className="h-32 w-32">
-                        <AvatarImage src="/placeholder.svg" alt="Profile" />
+                        <AvatarImage src={avatarSrc} alt="Profile" />
                         <AvatarFallback className="text-3xl bg-sky-200 text-sky-700">JS</AvatarFallback>
                     </Avatar>
-                    <Button variant="outline" size="sm" className="w-full">
+
+                    {/* Hidden file input */}
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept="image/*"
+                        className="hidden"
+                    />
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={handlePhotoButtonClick}
+                    >
                         <Upload className="h-4 w-4 mr-2" /> Change Photo
                     </Button>
+
                     <div className="text-center space-y-1">
                         <h3 className="font-semibold text-lg">John Snow</h3>
                         <p className="text-sm text-slate-500">Member since January 2025</p>
