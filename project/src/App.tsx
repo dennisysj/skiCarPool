@@ -21,5 +21,6 @@ export function App() {
         </Route>
       </Routes>
     </AuthProvider>
+    
   );
 }

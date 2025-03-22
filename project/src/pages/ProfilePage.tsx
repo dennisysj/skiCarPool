@@ -1,10 +1,10 @@
 import React from 'react';
+import { ProfileTab } from '../components/ProfileTab';
 
 export function ProfilePage() {
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Profile</h1>
-      <p>Profile page content coming soon...</p>
+    <div className="max-w-4xl mx-auto p-8">
+      <ProfileTab />
     </div>
   );
 }
