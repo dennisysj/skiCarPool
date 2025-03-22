@@ -88,7 +88,7 @@ const TripCard = ({ tripData }: { tripData: TripData }) => {
         {status === "rider" ? (
           <>
             <Button variant="outline" size="sm">Message Driver</Button>
-            <Button size="sm" className="bg-sky-500 hover:bg-sky-600">Book Now!</Button>
+            <Button size="sm" className="bg-sky-500 hover:bg-sky-600">View Details</Button>
           </>
         ) : status === "driver" ? (
           <>
@@ -97,7 +97,7 @@ const TripCard = ({ tripData }: { tripData: TripData }) => {
           </>
         ) : (
           <div className="ml-auto">
-            <Button size="sm" variant="outline">View Details</Button>
+            <Button size="sm" className="bg-sky-500 hover:bg-sky-600">View Details</Button>
           </div>
         )}
       </CardFooter>
