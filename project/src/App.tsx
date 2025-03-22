@@ -5,6 +5,7 @@ import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { SignUpPage } from './pages/SignUpPage';
 import { OfferRidePage } from './pages/OfferRidePage';
+import { MyTripsPage } from './pages/MyTripsPage';
 
 export function App() {
   return (
@@ -15,7 +16,7 @@ export function App() {
           <Route path="login" element={<LoginPage />} />
           <Route path="signup" element={<SignUpPage />} />
           <Route path="offer-ride" element={<OfferRidePage />} />
-          <Route path="my-trips" element={<div className="p-8 text-center">My Trips Page - Coming Soon</div>} />
+          <Route path="my-trips" element={<MyTripsPage />} />
           <Route path="profile" element={<div className="p-8 text-center">Profile Page - Coming Soon</div>} />
         </Route>
       </Routes>

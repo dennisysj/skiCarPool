@@ -1,10 +1,10 @@
 import React from 'react';
+import { MyTripsTab } from '../components/myTripsTab';
 
 export function MyTripsPage() {
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">My Trips</h1>
-      <p>My trips page content coming soon...</p>
+    <div className="max-w-4xl mx-auto p-8">
+      <MyTripsTab />
     </div>
   );
 }
