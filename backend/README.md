@@ -1,67 +1,6 @@
-# Ski Carpool App
+# Ski Carpool App - Backend
 
-A carpooling application for skiers and snowboarders to find or offer rides to ski resorts.
-
-## Project Structure
-
-This repository contains both frontend and backend code for the Ski Carpool application:
-
-- **/vite-frontend/** - React frontend built with Vite
-- **/backend/** - Node.js/Express backend with Supabase integration
-
-## Setup and Running
-
-### Backend
-
-1. Navigate to the backend directory:
-   ```
-   cd backend
-   ```
-
-2. Install dependencies:
-   ```
-   npm install
-   ```
-
-3. Start the development server:
-   ```
-   npm run dev
-   ```
-
-The backend API will be available at http://localhost:3000
-
-### Frontend
-
-1. Navigate to the frontend directory:
-   ```
-   cd vite-frontend
-   ```
-
-2. Install dependencies:
-   ```
-   npm install
-   ```
-
-3. Start the development server:
-   ```
-   npm run dev
-   ```
-
-The frontend will be available at http://localhost:5173
-
-## Features
-
-- User authentication (sign up, login, profile management)
-- Create and search for rides to ski resorts
-- Request to join rides as a passenger
-- Accept/reject ride requests as a driver
-- View upcoming and past trips
-
-## Technologies Used
-
-- **Frontend**: React, Vite, CSS
-- **Backend**: Node.js, Express, Supabase (PostgreSQL)
-- **Authentication**: JWT, Supabase Auth
+This is the backend API for the Ski Carpool application, which connects skiers and snowboarders for carpooling to ski resorts.
 
 ## Database Schema
 

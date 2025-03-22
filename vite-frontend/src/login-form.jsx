@@ -1,11 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import { Button } from "../components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function LoginForm() {
     const [formData, setFormData] = useState({
@@ -28,17 +23,17 @@ export default function LoginForm() {
     }
 
     return (
-        <div className="flex justify-center items-center min-h-[400px]">
-            <Card className="w-full max-w-md">
-                <CardHeader>
-                    <CardTitle className="text-2xl">Log In</CardTitle>
-                    <CardDescription>Enter your credentials to access your account.</CardDescription>
-                </CardHeader>
+        <div className="login-form-container">
+            <div className="login-card">
+                <div className="card-header">
+                    <h2 className="card-title">Log In</h2>
+                    <p className="card-description">Enter your credentials to access your account.</p>
+                </div>
                 <form onSubmit={handleSubmit}>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
+                    <div className="card-content">
+                        <div className="form-group">
+                            <label htmlFor="email">Email</label>
+                            <input
                                 id="email"
                                 name="email"
                                 type="email"
@@ -48,9 +43,9 @@ export default function LoginForm() {
                                 required
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="password">Password</Label>
-                            <Input
+                        <div className="form-group">
+                            <label htmlFor="password">Password</label>
+                            <input
                                 id="password"
                                 name="password"
                                 type="password"
@@ -59,20 +54,20 @@ export default function LoginForm() {
                                 required
                             />
                         </div>
-                    </CardContent>
-                    <CardFooter className="flex flex-col space-y-4">
-                        <Button type="submit" className="w-full">
+                    </div>
+                    <div className="card-footer">
+                        <button type="submit" className="login-button">
                             Log In
-                        </Button>
-                        <p className="text-sm text-center text-muted-foreground">
+                        </button>
+                        <p className="signup-text">
                             Don't have an account?{" "}
-                            <Link href="/signup" className="text-primary underline underline-offset-4 hover:text-primary/90">
+                            <a href="/signup" className="signup-link">
                                 Sign up
-                            </Link>
+                            </a>
                         </p>
-                    </CardFooter>
+                    </div>
                 </form>
-            </Card>
+            </div>
         </div>
     )
 }
