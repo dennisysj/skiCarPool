@@ -6,6 +6,7 @@ import { User, Provider } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName?: string, username?: string) => Promise<void>;
@@ -18,11 +19,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Load user from localStorage on initial load
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
+    
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser) as User);
@@ -30,6 +34,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Error parsing stored user:', e);
       }
     }
+    
+    if (storedToken) {
+      setToken(storedToken);
+    }
+    
     setLoading(false);
   }, []);
 
@@ -48,12 +57,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       created_at: new Date().toISOString()
     };
     
+    const fakeToken = 'fake-token-' + Date.now();
+    
     // Store in localStorage
     localStorage.setItem('user', JSON.stringify(fakeUser));
-    localStorage.setItem('token', 'fake-token-' + Date.now());
+    localStorage.setItem('token', fakeToken);
     
     // Update state
     setUser(fakeUser as unknown as User);
+    setToken(fakeToken);
     console.log('User signed in successfully (simulated)');
   };
 
@@ -71,12 +83,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       created_at: new Date().toISOString()
     };
     
+    const fakeToken = `fake-${provider}-token-${Date.now()}`;
+    
     // Store in localStorage
     localStorage.setItem('user', JSON.stringify(fakeUser));
-    localStorage.setItem('token', `fake-${provider}-token-${Date.now()}`);
+    localStorage.setItem('token', fakeToken);
     
     // Update state
     setUser(fakeUser as unknown as User);
+    setToken(fakeToken);
     console.log(`User signed in successfully via ${provider} (simulated)`);
   };
 
@@ -95,12 +110,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       created_at: new Date().toISOString()
     };
     
+    const fakeToken = 'fake-token-' + Date.now();
+    
     // Store in localStorage
     localStorage.setItem('user', JSON.stringify(fakeUser));
-    localStorage.setItem('token', 'fake-token-' + Date.now());
+    localStorage.setItem('token', fakeToken);
     
     // Update state
     setUser(fakeUser as unknown as User);
+    setToken(fakeToken);
     console.log('User signed up and logged in successfully (simulated)');
   };
 
@@ -111,6 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // Update state
     setUser(null);
+    setToken(null);
     console.log('User signed out successfully (simulated)');
   };
 
@@ -123,6 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={{ 
       user, 
+      token,
       loading, 
       signIn, 
       signUp, 
