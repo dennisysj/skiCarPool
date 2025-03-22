@@ -20,7 +20,7 @@ export function App() {
           <Route path="offer-ride" element={<OfferRidePage />} />
           <Route path="my-trips" element={<MyTripsPage />} />
           <Route path="profile" element={<ProfilePage />} />
-          <Route path="find-ride" element={<ProfilePage />} />
+          <Route path="find-ride" element={<HomePage />} />
         </Route>
       </Routes>
     </AuthProvider>

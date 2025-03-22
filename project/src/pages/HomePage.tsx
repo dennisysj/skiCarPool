@@ -7,18 +7,23 @@ import { useAuth } from '../contexts/AuthContext';
 export function HomePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean>(false);
   const [searchData, setSearchData] = useState({
     origin: '',
     destination: '',
     date: '',
   });
   const [showResults, setShowResults] = useState(false);
-  
+
   useEffect(() => {
     // Log authentication state for debugging
-    console.log('HomePage - Auth State:', user ? 'Authenticated' : 'Not authenticated');
+    const authState = user ? 'Authenticated' : 'Not authenticated';
+    console.log('HomePage - Auth State:', authState);
     if (user) {
       console.log('HomePage - User info:', user);
+      setIsUserLoggedIn(true);
+    } else {
+      setIsUserLoggedIn(false);
     }
   }, [user]);
 
@@ -45,7 +50,7 @@ export function HomePage() {
           {user && <p>User email: {user.email}</p>}
         </div>
       )}
-      
+
       {/* Hero Section */}
       <div className="w-full bg-[#f7f9fc] py-10">
         <div className="max-w-4xl mx-auto px-4">
@@ -57,7 +62,7 @@ export function HomePage() {
               <p className="text-lg text-[#4f7296] mb-6">
                 Connect with fellow ski enthusiasts and share rides to your favorite slopes
               </p>
-              {!user && (
+              {!isUserLoggedIn && (
                 <div className="flex gap-4">
                   <Button onClick={() => navigate('/login')} className="bg-[#197fe5]">
                     Get Started
@@ -137,56 +142,66 @@ export function HomePage() {
           {showResults && (
             <div className="space-y-4">
               <h3 className="text-xl font-semibold mb-2">Available Rides</h3>
-              
+
               {/* We'll just show some dummy rides for now */}
               <div className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h4 className="font-medium">{searchData.origin} to {searchData.destination}</h4>
-                    <p className="text-sm text-gray-600">{searchData.date} · 7:00 AM</p>
+                    <p className="text-sm text-gray-600">{searchData.date} · Departure: 7:00 AM · Return: 5:30 PM</p>
                   </div>
                   <div className="text-right">
                     <p className="font-medium">$25 per seat</p>
                     <p className="text-sm text-gray-600">3 seats available</p>
                   </div>
                 </div>
-                <div className="flex items-center text-sm">
-                  <img 
-                    src="https://randomuser.me/api/portraits/men/32.jpg"
-                    alt="Driver"
-                    className="w-6 h-6 rounded-full mr-2"
-                  />
-                  <span>John D. · 4.8 ★</span>
+                <div className="flex items-center text-sm gap-4">
+                  <div className="flex items-center">
+                    <img
+                      src="https://randomuser.me/api/portraits/men/32.jpg"
+                      alt="Driver"
+                      className="w-6 h-6 rounded-full mr-2"
+                    />
+                    <span>John D. · 4.8 ★</span>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    <span>Toyota 4Runner</span>
+                  </div>
                 </div>
                 <div className="mt-3">
-                  <Button size="sm" variant="outline" className="w-full">
-                    View Details
+                  <Button size="sm" variant="outline" className="w-full bg-sky-500 hover:bg-sky-600 text-white hover:text-white">
+                    Book Now!
                   </Button>
                 </div>
               </div>
-              
+
               <div className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h4 className="font-medium">{searchData.origin} to {searchData.destination}</h4>
-                    <p className="text-sm text-gray-600">{searchData.date} · 9:30 AM</p>
+                    <p className="text-sm text-gray-600">{searchData.date} · Departure: 9:30 AM · Return: 6:00 PM</p>
                   </div>
                   <div className="text-right">
                     <p className="font-medium">$30 per seat</p>
                     <p className="text-sm text-gray-600">2 seats available</p>
                   </div>
                 </div>
-                <div className="flex items-center text-sm">
-                  <img 
-                    src="https://randomuser.me/api/portraits/women/44.jpg"
-                    alt="Driver"
-                    className="w-6 h-6 rounded-full mr-2"
-                  />
-                  <span>Sarah M. · 4.9 ★</span>
+                <div className="flex items-center text-sm gap-4">
+                  <div className="flex items-center">
+                    <img
+                      src="https://randomuser.me/api/portraits/women/44.jpg"
+                      alt="Driver"
+                      className="w-6 h-6 rounded-full mr-2"
+                    />
+                    <span>Sarah M. · 4.9 ★</span>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    <span>Subaru Outback</span>
+                  </div>
                 </div>
                 <div className="mt-3">
-                  <Button size="sm" variant="outline" className="w-full">
-                    View Details
+                  <Button size="sm" variant="outline" className="w-full bg-sky-500 hover:bg-sky-600 text-white hover:text-white">
+                    Book Now!
                   </Button>
                 </div>
               </div>
