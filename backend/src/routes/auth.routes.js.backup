@@ -10,9 +10,6 @@ const { createClient } = require('@supabase/supabase-js');
 // Create Supabase client for auth strategies
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// Admin client with service role key to bypass RLS
-const adminSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_KEY);
-
 // Configure Passport for Google OAuth
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
@@ -55,7 +52,9 @@ passport.use(new GoogleStrategy({
     console.log('Auth user created:', user.id);
 
     // Create profile
-    const { error: profileError } = await adminSupabase.from('profiles').insert({
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert({
         id: user.id,
         google_id: profile.id,
         full_name: profile.displayName,
@@ -116,7 +115,9 @@ passport.use(new AppleStrategy({
     }
 
     // Create profile
-    const { error: profileError } = await adminSupabase.from('profiles').insert({
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert({
         id: user.id,
         apple_id: profile.id,
         full_name: profile.name || email.split('@')[0],
@@ -170,7 +171,9 @@ router.post('/signup', async (req, res) => {
 
     // Create a profile entry
     if (authData.user) {
-      const { error: profileError } = await adminSupabase.from('profiles').insert({
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
           id: authData.user.id,
           username,
           full_name: fullName,
@@ -329,95 +332,6 @@ router.get('/apple/callback', passport.authenticate('apple', {
 }), (req, res) => {
   // Successful authentication
   res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
-});
-
-// Create profile endpoint for frontend
-router.post('/create-profile', async (req, res) => {
-  try {
-    // Get the authorization header
-    const authHeader = req.headers.authorization;
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Authorization header missing or invalid' });
-    }
-
-    // Extract the token
-    const token = authHeader.split(' ')[1];
-    
-    // Verify the token and get user
-    const { data: userData, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !userData.user) {
-      return res.status(401).json({ error: authError?.message || 'Invalid token' });
-    }
-
-    const { userId, email, fullName, username } = req.body;
-    
-    // Verify that the token's user matches the requested userId
-    if (userData.user.id !== userId) {
-      return res.status(403).json({ error: 'User ID mismatch' });
-    }
-
-    try {
-      // First try using the adminSupabase client to bypass RLS
-      const { error: profileError } = await adminSupabase.from('profiles').insert({
-        id: userId,
-        username: username || email.split('@')[0],
-        full_name: fullName || '',
-        created_at: new Date().toISOString()
-      });
-
-      if (profileError) {
-        console.error('Error creating profile with adminSupabase:', profileError);
-        
-        // If that fails, try a raw SQL insert using PostgreSQL client
-        const { data: pgResult, error: pgError } = await adminSupabase.rpc('create_profile', { 
-          user_id: userId,
-          user_username: username || email.split('@')[0],
-          user_fullname: fullName || '',
-          user_created_at: new Date().toISOString()
-        });
-
-        if (pgError) {
-          console.error('Error creating profile with rpc:', pgError);
-          
-          // If the RPC doesn't exist, send instructions to create it
-          console.log(`
-            To fix the profile creation issue, please create this function in Supabase SQL Editor:
-            
-            CREATE OR REPLACE FUNCTION public.create_profile(
-              user_id uuid,
-              user_username text,
-              user_fullname text,
-              user_created_at timestamptz
-            ) RETURNS boolean 
-            LANGUAGE plpgsql SECURITY DEFINER
-            AS $$
-            BEGIN
-              INSERT INTO public.profiles (id, username, full_name, created_at)
-              VALUES (user_id, user_username, user_fullname, user_created_at);
-              RETURN true;
-            EXCEPTION
-              WHEN others THEN
-                RAISE NOTICE 'Error creating profile: %', SQLERRM;
-                RETURN false;
-            END;
-            $$;
-          `);
-          
-          return res.status(500).json({ error: 'Failed to create profile - database error' });
-        }
-      }
-    } catch (dbError) {
-      console.error('Database operation error:', dbError);
-      return res.status(500).json({ error: 'Database operation failed' });
-    }
-
-    return res.status(201).json({ message: 'Profile created successfully' });
-  } catch (error) {
-    console.error('Create profile error:', error);
-    return res.status(500).json({ error: 'Server error creating profile' });
-  }
 });
 
 module.exports = router; 

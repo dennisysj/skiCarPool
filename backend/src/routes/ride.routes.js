@@ -10,7 +10,15 @@ const createRideSchema = Joi.object({
   departure_time: Joi.date().iso().required(),
   available_seats: Joi.number().integer().min(1).required(),
   price: Joi.number().min(0).required(),
-  description: Joi.string().allow('', null)
+  description: Joi.string().allow('', null),
+  // New fields from the Offer Ride form
+  ski_resort: Joi.string().required(),
+  pickup_zone: Joi.string().required(),
+  car_make: Joi.string().allow('', null),
+  car_model: Joi.string().allow('', null),
+  car_photo_url: Joi.string().uri().allow('', null),
+  gear_space: Joi.string().allow('', null),
+  return_time: Joi.date().iso().allow(null)
 });
 
 // Validation schema for updating a ride
@@ -20,7 +28,15 @@ const updateRideSchema = Joi.object({
   departure_time: Joi.date().iso(),
   available_seats: Joi.number().integer().min(1),
   price: Joi.number().min(0),
-  description: Joi.string().allow('', null)
+  description: Joi.string().allow('', null),
+  // New fields from the Offer Ride form
+  ski_resort: Joi.string(),
+  pickup_zone: Joi.string(),
+  car_make: Joi.string().allow('', null),
+  car_model: Joi.string().allow('', null),
+  car_photo_url: Joi.string().uri().allow('', null),
+  gear_space: Joi.string().allow('', null),
+  return_time: Joi.date().iso().allow(null)
 });
 
 // Get all rides
